@@ -43,7 +43,7 @@ def crawl(url, visited, results, max_depth, current_depth=0):
     # results[url] = list(emails)
 
     # Parse the HTML and look for emails using gemini-flash from google deepmind    .
-    client = genai.Client(api_key="AIzaSyAPmMlj1ENmRahSSX-zFyKXA64PvC05mZQ")
+    client = genai.Client(api_key="GEMINI_API_KEY")
 
     emails = client.models.generate_content(
         model="gemini-2.0-flash", contents=['Extract all emails from the following HTML: '] + [html]
