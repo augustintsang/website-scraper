@@ -7,6 +7,9 @@ from urllib.parse import urljoin, urlparse
 from google import genai
 from dotenv import load_dotenv
 
+load_dotenv()
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+
 # Regular expression to match email addresses.
 EMAIL_REGEX = re.compile(r'[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+')
 
@@ -39,15 +42,22 @@ def crawl(url, visited, results, max_depth, current_depth=0):
         return
 
     # # Find email addresses using the regex.
-    # emails = set(EMAIL_REGEX.findall(html))
-    # results[url] = list(emails)
+    # emails1 = set(EMAIL_REGEX.findall(html))
+    # results[url] = list(emails1)
+    # print(emails1)
 
     # Parse the HTML and look for emails using gemini-flash from google deepmind    .
-    client = genai.Client(api_key="GEMINI_API_KEY")
-
-    emails = client.models.generate_content(
-        model="gemini-2.0-flash", contents=['Extract all emails from the following HTML: '] + [html]
+    client = genai.Client(api_key="AIzaSyAPmMlj1ENmRahSSX-zFyKXA64PvC05mZQ")
+    response = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=[
+            "Find and return all email addresses from the following HTML. Do not return a script that does this, just return the email addresses. If no email addresses are found, return an empty list:\n\n",
+            html
+        ]
     )
+
+    emails = response.text
+    print(emails)
     results[url] = list(emails)
 
     # Parse the HTML and look for hyperlinks.
@@ -102,7 +112,6 @@ def main():
                 writer.writerow({'URL': url, 'Emails': ", ".join(flattened_emails)})
         print(f"Scraping complete. Results saved in {csv_filename}")
     except Exception as e:
-        print(flattened_emails)
         print(f"Error writing CSV: {e}")
 
 if __name__ == "__main__":
